@@ -1,0 +1,14 @@
+# 数据库配置
+database:
+  host: "192.168.0.100"
+  port: 1433
+  username: "sa"
+  password: "1"
+  dbname: "SFC"
+  encrypt: "disable"
+  trustServerCertificate: true
+
+# JWT配置
+jwt:
+  secret: "shuchen" # 请在生产环境中使用更强的密钥
+  expireHours: 24 # token过期时间（小时）

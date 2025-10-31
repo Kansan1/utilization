@@ -1,0 +1,75 @@
+/* Firefox */
+.ant-table-body {
+    scrollbar-width: none; /* 隐藏滚动条 */
+    -ms-overflow-style: none; /* IE 10+ 隐藏滚动条 */
+}
+
+/* Chrome, Safari, Edge */
+.ant-table-body::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+}
+
+.ant-table-body::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.ant-table-body::-webkit-scrollbar-thumb {
+    background: transparent !important;
+}
+
+/* 表体行样式（内容区域） */
+.custom-row > td {
+    height: 60px;
+    padding: 12px 16px;
+    line-height: 24px;
+    color: #d6e4ff; /* 内容文字：浅蓝 */
+    background-color: #142b5f; /* 内容背景：稍浅的深蓝 */
+    border-bottom: 1px solid #1e3974;
+}
+
+.custom-row2 > td {
+    height: 74px; /* 行高调高 */
+    padding: 4px 5px; /* 内边距增大 */
+    font-size: 18px; /* 字体变大 */
+    line-height: 22px; /* 行内高度同步调大 */
+    color: #d6e4ff; /* 内容文字：浅蓝 */
+    background-color: #142b5f; /* 内容背景：稍浅的深蓝 */
+    border-bottom: 1px solid #1e3974;
+}
+
+.ant-table-thead > tr > th {
+    font-size: 18px;
+    height: 4px;
+    padding: 4px 5px;
+    background-color: #1e3974; /* 表头颜色深一点 */
+    color: #ffffff;
+}
+
+/* 表体悬停行高亮 */
+.custom-row:hover > td {
+    background-color: #1a356a; /* 略深一点的蓝色 */
+}
+
+/* 表头样式 */
+.ant-table .ant-table-thead > tr > th {
+    background-color: #0a1f44 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #1e3974 !important;
+}
+
+.ant-table-title {
+    background-color: #0a1f44;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 12px 16px;
+    border-bottom: 2px solid #1e3974;
+}
+
+
+/* 覆盖故障频繁设备预警表格无数据时的背景色，使其与有数据时一致 */
+.ant-table-tbody > tr.ant-table-placeholder > td {
+    background-color: #142b5f !important;
+    color: #d6e4ff !important; /* 保持字体颜色一致 */
+}

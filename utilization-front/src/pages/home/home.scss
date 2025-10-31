@@ -1,0 +1,340 @@
+.P-home {
+    padding: 20px 0; // Added semicolon
+    font-size: 30px; // Added semicolon
+    color: #fff; // Added semicolon
+    background: #67C23A; // Added semicolon
+    text-align: center; // Added semicolon
+}
+
+.home-container {
+    display: flex;
+  min-height: 100vh;
+  width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar {
+    width: 230px;
+    background-color: #001529;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
+  min-height: 100vh;
+  /* 确保高度为整个视口高度 */
+    position: fixed;
+    /* 固定定位 */
+    left: 0;
+    /* 紧贴左边 */
+    top: 0;
+    /* 紧贴上边 */
+    bottom: 0;
+    /* 紧贴下边 */
+    margin: 0;
+    /* 移除任何外边距 */
+    padding: 0;
+    /* 移除任何内边距 */
+    z-index: 1000;
+    /* 确保在其他元素之上 */
+}
+
+/* 调整内容区域，为左侧菜单腾出空间 */
+.content-area {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 改成最小高度 */
+  position: relative;
+  color: #b0c4de;
+  background-color: #0a1f44;
+  margin-left: 230px;
+  transition: all 0.3s ease;
+  width: calc(100% - 230px);
+    /* 宽度为剩余空间 */
+    
+    // 当处于全屏模式时
+    &.fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+    }
+}
+
+/* 全屏模式下菜单消失，内容占满 */
+.content-area.fullscreen {
+    margin-left: 0;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1001;
+}
+.logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #002140;
+}
+
+.logo h2 {
+  color: #fff;
+  margin: 0;
+  font-size: 18px;
+}
+
+.menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-list li {
+  height: 50px;
+  line-height: 50px;
+  padding: 0 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+}
+
+.menu-list li:hover {
+  background-color: #1890ff;
+}
+
+.menu-list li.active {
+  background-color: #1890ff;
+}
+
+.icon {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.menu-title {
+  font-size: 14px;
+}
+
+
+
+/* 顶部感应区域 - 用于触发顶部栏显示 */
+.header-sensor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px; /* 感应区域高度 */
+  z-index: 1002; /* 确保在最上层 */
+}
+
+.content-header {
+  height: 60px; // 固定头部高度
+  transition: transform 0.3s ease;
+  background-color: #162b56;
+
+  z-index: 100;
+  padding: 0 20px;
+  display: flex;
+    justify-content: space-between;
+    align-items: center;
+  
+  &.hidden {
+    transform: translateY(-100%);
+  }
+}
+
+.content-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+/* 头部操作区域样式 */
+.header-actions {
+  background-color: #1f3a72;
+  display: flex;
+  align-items: center;
+}
+.header-actions .fullscreen-btn:hover {
+  background-color: #294a8d; /* 按钮 hover 变亮 */
+}
+/* 全屏按钮样式 */
+.fullscreen-btn {
+  background-color: #1f3a72;
+  color: white;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.fullscreen-btn:hover {
+  background-color: #40a9ff;
+}
+
+.content-body {
+  background-color: #112244;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  padding: 20px;
+  
+  // 关键修改：当header隐藏时，调整content-body
+  .content-header.hidden + & {
+    margin-top: -60px; // 向上移动填充header的空间
+    padding-top: 20px; // 保持原有的内边距
+  }
+
+  //.content-time-display {
+  //  position: absolute;
+  //  top: 0;
+  //  right: 20px;
+  //  font-size: 14px;
+  //  color: #333;
+  //  padding: 4px 8px;
+  //  background: rgba(255, 255, 255, 0.8);
+  //  border-radius: 4px;
+  //  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  //  z-index: 10;
+  //}
+
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    position: relative;
+    background-color: #1a2e50;
+    margin-top: 20px;
+    margin-bottom: 20px;
+   // padding: 4px 4px; /* 适当缩小上下间距 */
+  }
+
+  .content-title
+ {
+    font-size: 40px;
+    color: #b0c4de;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+  }
+
+  .time-display {
+    font-size: 30px;
+    text-align: right;
+    left: 90%;
+  }
+
+  // 全屏模式下的样式
+  &.fullscreen {
+    height: 100vh;
+    padding: 20px;
+  }
+}
+
+.welcome-message {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+}
+
+.library-one-content {
+  flex: 1; // 确保填满content-body
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  height: 100%; // 确保高度100%
+  background-color: #112244;
+  .top-row, .bottom-row {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    min-height: 0; /* 避免撑破 */
+  }
+
+  .top-row{
+    //height: 50%;
+  }
+  @keyframes border-flow {
+    0% {
+      border-image-source: linear-gradient(0deg, #0a1f44, #2563eb, #0a1f44);
+    }
+    25% {
+      border-image-source: linear-gradient(90deg, #0a1f44, #3b82f6, #2563eb);
+    }
+    50% {
+      border-image-source: linear-gradient(180deg, #0a1f44, #7c3aed, #3b82f6);
+    }
+    75% {
+      border-image-source: linear-gradient(270deg, #0a1f44, #2563eb, #7c3aed);
+    }
+    100% {
+      border-image-source: linear-gradient(360deg, #0a1f44, #2563eb, #0a1f44);
+    }
+  }
+
+  html, body, #root {
+    background-color: #0a192f;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .top-row, .bottom-row {
+    //height: 50%;
+    //
+    .chart-section {
+      border-radius: 12px;
+      border: 4px solid transparent;
+      border-image-slice: 1;
+      border-image-source: linear-gradient(0deg, #4a90e2, #ff7f50, #ffd700);
+      animation: border-flow 3s linear infinite; /* 3秒循环 */
+      flex: 1;
+      background-color: #0a1f44;
+
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex; /* 同样使用flex */
+      flex-direction: column;
+      min-height: 0;
+
+    }
+  }
+  .chart-section canvas {
+    background-color: transparent !important;
+  }
+
+}
+
+// 修改全屏提示样式
+.fullscreen-tip {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+  z-index: 1000;
+
+  &:hover {
+    opacity: 0;
+  }
+}
+
+// 添加顶部栏隐藏时的内容区域样式
+.content-header.hidden + .content-body {
+  height: 100%;
+  padding-top: 0;
+}
