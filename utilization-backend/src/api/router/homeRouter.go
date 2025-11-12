@@ -55,11 +55,42 @@ func HomeRouter(r *gin.Engine) *gin.RouterGroup {
 		home.PUT("/monthlyFaultFrequency/update", UpdateMonthlyFaultFrequency)        // 更新
 		home.DELETE("/monthlyFaultFrequency/delete/:id", DeleteMonthlyFaultFrequency) // 删除
 		home.GET("/monthlyFaultFrequency/merged", GetMergedMonthlyFaultFrequencies)
-
+		// gt-设备点检状态路由
+		home.GET("/equipment/inspection-status", GetEquipmentInspectionStatus)
+		// gt-添加设备点检记录路由
+		home.POST("/inspection/add", AddInspectionRecord)
 	}
 	return apiHome
 }
 
+// gt-获取设备点检状态的处理器
+func GetEquipmentInspectionStatus(ctx *gin.Context) {
+	list, err := dao.GetEquipmentInspectionStatus()
+	if err != nil {
+		result.Fail(ctx, http.StatusInternalServerError, "查询设备点检状态失败："+err.Error())
+		return
+	}
+	result.Success(ctx, list)
+}
+
+// gt-添加点检记录并发送WebSocket 通知的处理器
+func AddInspectionRecord(ctx *gin.Context) {
+	var inspection models.Inspection
+	if err := ctx.ShouldBindJSON(&inspection); err != nil {
+		result.Fail(ctx, http.StatusBadRequest, "参数解析失败："+err.Error())
+		return
+	}
+	if inspection.Type == "" {
+		result.Fail(ctx, http.StatusBadRequest, "设备编码（type）不能为空")
+		return
+	}
+	if err := dao.AddInspection(inspection); err != nil {
+		result.Fail(ctx, http.StatusInternalServerError, "添加点检记录失败："+err.Error())
+		return
+	}
+	socket.NotifyAllClients("inspection-update", "新的点检记录已添加")
+	result.Success(ctx, "添加成功")
+}
 func handleUtilizationList(ctx *gin.Context) {
 	currentTime := ctx.Query("currentTime")
 	home.GetUtilizationListByMonth(currentTime, ctx)

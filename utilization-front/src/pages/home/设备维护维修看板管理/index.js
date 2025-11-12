@@ -6,6 +6,7 @@ import EquipmentSchedule from "./EquipmentSchedule";
 import EquipmentScheduleWithCategoryType from "./EquipmentScheduleType";
 import EquipmentPlanSpecific from "./EquipmentPlanSpecific";
 import DailyRepairTask from "./DailyRepairTask";
+import EquipmentInspection from "./EquipmentInspection";
 
 const { TabPane } = Tabs;
 
@@ -26,6 +27,9 @@ export default function MyTabs() {
             </TabPane>
             <TabPane tab="设备类型" key="4">
                 <EquipmentScheduleWithCategoryType />
+            </TabPane>
+            <TabPane tab="点检设备" key="5">
+                <EquipmentInspection/>
             </TabPane>
         </Tabs>
     );
