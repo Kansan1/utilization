@@ -63,7 +63,7 @@ func HomeRouter(r *gin.Engine) *gin.RouterGroup {
 	return apiHome
 }
 
-// gt-获取设备点检状态的处理器
+// GetEquipmentInspectionStatus gt-获取设备点检状态的处理器
 func GetEquipmentInspectionStatus(ctx *gin.Context) {
 	list, err := dao.GetEquipmentInspectionStatus()
 	if err != nil {

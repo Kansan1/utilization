@@ -116,6 +116,13 @@ export const homeAPi = {
       url: "/api/home/equipment/inspection-status",
       method: "get",
     });
+  },
+  // 新增：获取设备点检状态列表
+  getEquipmentInspectionStatus: () => {
+    return request({
+      url: "/api/home/equipment/inspection-status",
+      method: "get",
+    });
   }
 
 };
