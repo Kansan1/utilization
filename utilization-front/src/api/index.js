@@ -109,8 +109,13 @@ export const homeAPi = {
     });
 
   },
-
-
+  getInspection: () => {
+    return request({
+      baseURL: "http://192.168.0.103:3004",
+      url: "/scan/today",
+      method: "get",
+    });
+  },
   // 新增：获取设备点检状态列表
   getEquipmentInspectionStatus: () => {
     return request({
