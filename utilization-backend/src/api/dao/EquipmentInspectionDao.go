@@ -7,6 +7,15 @@ import (
 	"utilization-backend/src/api/models"
 )
 
+type EquipmentInspectionStatus struct {
+	EquipCode     string `db:"equip_code"`
+	EquipName     string `db:"equip_name"`
+	EquipLocation string `db:"equip_location"`
+	EquipType     string `db:"equip_type"`
+	InspectedAm   bool   `db:"inspected_am"`
+	InspectedPm   bool   `db:"inspected_pm"`
+}
+
 // GetEquipmentInspectionStatus 获取所有设备及当日点检状态
 func GetEquipmentInspectionStatus() ([]models.EquipmentInspection, error) {
 	var results []models.EquipmentInspection
