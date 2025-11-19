@@ -7,7 +7,8 @@ type EquipmentInspection struct {
 	EquipCode     string `json:"equip_code"`
 	EquipLocation string `json:"equip_location"`
 	EquipType     string `json:"equip_type"`
-	Inspected     bool   `json:"inspected"` // 这个字段将通过 SQL 查询动态填充，代表是否已点检
+	InspectedAm   bool   `json:"inspected_am"`
+	InspectedPm   bool   `json:"inspected_pm"`
 }
 
 // TableName 指定表名

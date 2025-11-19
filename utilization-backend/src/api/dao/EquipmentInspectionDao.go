@@ -7,15 +7,6 @@ import (
 	"utilization-backend/src/api/models"
 )
 
-type EquipmentInspectionStatus struct {
-	EquipCode     string `db:"equip_code"`
-	EquipName     string `db:"equip_name"`
-	EquipLocation string `db:"equip_location"`
-	EquipType     string `db:"equip_type"`
-	InspectedAm   bool   `db:"inspected_am"`
-	InspectedPm   bool   `db:"inspected_pm"`
-}
-
 // GetEquipmentInspectionStatus 获取所有设备及当日点检状态
 func GetEquipmentInspectionStatus() ([]models.EquipmentInspection, error) {
 	var results []models.EquipmentInspection
@@ -23,27 +14,38 @@ func GetEquipmentInspectionStatus() ([]models.EquipmentInspection, error) {
 	// 获取今天的日期，格式为 YYYY-MM-DD
 	today := time.Now().Format("2006-01-02")
 
-	// SQL 查询：
-	// 1. 从 equipment_inspection 表中选择所有设备。
-	// 2. LEFT JOIN 当天的 Inspection 记录。
-	// 3. 使用 CASE 语句判断当天是否有点检记录 (i.type IS NOT NULL)，并生成 inspected 状态 (1 或 0)。
+	// SQL 查询更新：
+	// 1. 增加了 e.seq 的查询
+	// 2. 为 BYQ 设备分别检查 _AM 和 _PM 后缀的记录
+	// 3. 为非 BYQ 设备检查无后缀的记录到 inspected_am 字段
 	query := `
-		SELECT 
-			ei.seq, 
-			ei.equip_name, 
-			ei.equip_code, 
-			ei.equip_location, 
-			ei.equip_type,
-			CASE 
-				WHEN i.type IS NOT NULL THEN 1 
-				ELSE 0 
-			END AS inspected
-		FROM 
-			equipment_inspection ei
-		LEFT JOIN 
-			Inspection i ON ei.equip_code = i.type AND CONVERT(date, i.time) = @p1
-		ORDER BY
-			ei.seq`
+SELECT
+    e.seq,
+    e.equip_name,
+    e.equip_code,
+    e.equip_location,
+    e.equip_type,
+    CAST(
+        CASE
+            WHEN e.equip_code LIKE 'BYQ%' THEN
+                CASE WHEN EXISTS (SELECT 1 FROM Inspection i WHERE i.type = e.equip_code + '_AM' AND CONVERT(date, i.time) = @p1) THEN 1 ELSE 0 END
+            ELSE
+                CASE WHEN EXISTS (SELECT 1 FROM Inspection i WHERE i.type = e.equip_code AND CONVERT(date, i.time) = @p1) THEN 1 ELSE 0 END
+        END
+    AS BIT) AS inspected_am,
+    CAST(
+        CASE
+            WHEN e.equip_code LIKE 'BYQ%' THEN
+                CASE WHEN EXISTS (SELECT 1 FROM Inspection i WHERE i.type = e.equip_code + '_PM' AND CONVERT(date, i.time) = @p1) THEN 1 ELSE 0 END
+            ELSE
+                0
+        END
+    AS BIT) AS inspected_pm
+FROM
+    equipment_inspection e
+ORDER BY
+    e.seq;
+`
 
 	rows, err := config.DB.Query(query, today)
 	if err != nil {
@@ -53,7 +55,7 @@ func GetEquipmentInspectionStatus() ([]models.EquipmentInspection, error) {
 
 	for rows.Next() {
 		var item models.EquipmentInspection
-		if err := rows.Scan(&item.Seq, &item.EquipName, &item.EquipCode, &item.EquipLocation, &item.EquipType, &item.Inspected); err != nil {
+		if err := rows.Scan(&item.Seq, &item.EquipName, &item.EquipCode, &item.EquipLocation, &item.EquipType, &item.InspectedAm, &item.InspectedPm); err != nil {
 			return nil, fmt.Errorf("扫描数据失败: %w", err)
 		}
 		results = append(results, item)

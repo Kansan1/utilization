@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Table, message, Tag, Spin } from 'antd';
-import { homeAPi } from '../../../api';
-import { io } from "socket.io-client";
+import React, {useEffect, useState} from 'react';
+import {message, Spin, Table, Tag} from 'antd';
+import {homeAPi} from '../../../api';
+import {io} from "socket.io-client";
 
 // 连接到您的 Go 后端 WebSocket 服务
 // 请确保这里的 IP 和端口是您后端服务的正确地址
@@ -21,6 +21,7 @@ const EquipmentInspection = () => {
             key: 'seq',
             width: 80,
             align: 'center',
+            render: (text, record, index) => `${index + 1}`, // 自动生成序号
         },
         {
             title: '设备名称',
@@ -44,15 +45,27 @@ const EquipmentInspection = () => {
         },
         {
             title: '当日点检状态',
-            dataIndex: 'inspected',
-            key: 'inspected',
+            key: 'inspection_status',
             align: 'center',
-            width: 150,
-            render: (inspected) => (
-                inspected
-                    ? <Tag color="green">已点检</Tag>
-                    : <Tag color="red">未点检</Tag>
-            ),
+            width: 200,
+            render: (text, record) => {
+                // 判断是否为温控巡查设备
+                if (record.equip_code && record.equip_code.startsWith('BYQ')) {
+                    return (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                            <span>上午:</span>
+                            {record.inspected_am ? <Tag color="green">已检</Tag> : <Tag color="red">未检</Tag>}
+                            <span style={{ marginLeft: '10px' }}>下午:</span>
+                            {record.inspected_pm ? <Tag color="green">已检</Tag> : <Tag color="red">未检</Tag>}
+                        </div>
+                    );
+                } else {
+                    // 对于其他设备，显示单一的点检状态 (现在由 inspected_am 承载)
+                    return record.inspected_am
+                        ? <Tag color="green">已点检</Tag>
+                        : <Tag color="red">未点检</Tag>;
+                }
+            },
         },
     ];
 
@@ -110,8 +123,8 @@ const EquipmentInspection = () => {
                 dataSource={data}
                 rowKey="equip_code" // 使用唯一的 equip_code 作为 key
                 bordered
-                pagination={{ pageSize: 20 }} // 调整分页大小
-                title={() => <h2 style={{ textAlign: 'center', margin: 0 }}>设备每日点检状态看板</h2>}
+                pagination={{pageSize: 20}} // 调整分页大小
+                title={() => <h2 style={{textAlign: 'center', margin: 0}}>设备每日点检状态看板</h2>}
             />
         </Spin>
     );
