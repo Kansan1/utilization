@@ -1,17 +1,71 @@
-import React, {useEffect, useState} from 'react';
-import {message, Spin, Table, Tag} from 'antd';
-import {homeAPi} from '../../../api';
-import {io} from "socket.io-client";
+import React, { useEffect, useState } from 'react';
+import { message, Spin, Table, Tag, Radio } from 'antd'; // 导入 Radio 组件
+import { homeAPi } from '../../../api'; // 确保你正确导入了 homeAPi
+import { io } from "socket.io-client";
 
-// 连接到您的 Go 后端 WebSocket 服务
-// 请确保这里的 IP 和端口是您后端服务的正确地址
+// 连接到 WebSocket 服务
 const socket = io("http://localhost:9020", {
-    // transports: ['websocket'], // 强制使用 WebSocket 协议
+    transports: ['websocket'],
 });
 
 const EquipmentInspection = () => {
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [filterStatus, setFilterStatus] = useState('全部');
+    const [filterType, setFilterType] = useState('全部');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await homeAPi.getEquipmentInspectionStatus(); // 修正 API 调用
+                if (res && res.data) {
+                    setData(res.data || []);
+                }
+            } catch (error) {
+                console.error("查询设备点检状态失败:", error);
+            }
+        };
+
+        fetchData();
+
+        const socket = io(process.env.REACT_APP_SOCKET_URL, {
+            transports: ['websocket'],
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket server');
+        });
+
+        socket.on('scan-success', (message) => {
+            console.log('Received scan-success message, refetching data...');
+            fetchData();
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from WebSocket server');
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
+
+    const handleFilterChange = (e) => {
+        setFilterStatus(e.target.value);
+    };
+
+    const handleTypeFilterChange = (e) => {
+        setFilterType(e.target.value);
+    };
+
+    const filteredData = data.filter(item => {
+        const statusFilter = filterStatus === '全部' ||
+            (filterStatus === '已点检' &&
+                (item.equip_code.startsWith('BYQ') ? item.inspected_am && item.inspected_pm : item.inspected_am)) ||
+            (filterStatus === '未点检' &&
+                (item.equip_code.startsWith('BYQ') ? !item.inspected_am || !item.inspected_pm : !item.inspected_am));
+        const typeFilter = filterType === '全部' || item.equip_type === filterType;
+        return statusFilter && typeFilter; // 使用修正后的变量名
+    });
 
     // 定义新的表格列结构
     const columns = [
@@ -45,88 +99,59 @@ const EquipmentInspection = () => {
         },
         {
             title: '当日点检状态',
+            dataIndex: 'inspection_status',
             key: 'inspection_status',
-            align: 'center',
-            width: 200,
             render: (text, record) => {
-                // 判断是否为温控巡查设备
-                if (record.equip_code && record.equip_code.startsWith('BYQ')) {
+                if (record.equip_code.startsWith('BYQ')) {
                     return (
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-                            <span>上午:</span>
-                            {record.inspected_am ? <Tag color="green">已检</Tag> : <Tag color="red">未检</Tag>}
-                            <span style={{ marginLeft: '10px' }}>下午:</span>
-                            {record.inspected_pm ? <Tag color="green">已检</Tag> : <Tag color="red">未检</Tag>}
-                        </div>
+                        <span>
+                            <Tag color={record.inspected_am ? 'green' : 'red'}>上午</Tag>
+                            <Tag color={record.inspected_pm ? 'green' : 'red'}>下午</Tag>
+                        </span>
                     );
                 } else {
-                    // 对于其他设备，显示单一的点检状态 (现在由 inspected_am 承载)
-                    return record.inspected_am
-                        ? <Tag color="green">已点检</Tag>
-                        : <Tag color="red">未点检</Tag>;
+                    return (
+                        <Tag color={record.inspected_am ? 'green' : 'red'}>
+                            {record.inspected_am ? '已点检' : '未点检'}
+                        </Tag>
+                    );
                 }
             },
         },
     ];
 
-    // 从新的 API 获取数据
-    const fetchData = async () => {
-        if (!loading) setLoading(true);
-        try {
-            const res = await homeAPi.getEquipmentInspectionStatus();
-            if (res.code === 200) {
-                setData(res.data || []);
-            } else {
-                message.error(res.message || '获取设备点检数据失败');
-            }
-        } catch (error) {
-            console.error('获取设备点检数据失败：', error);
-            message.error('网络错误或服务器无响应');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        // 初始加载数据
-        fetchData();
-
-        // 监听 WebSocket 连接事件
-        socket.on('connect', () => {
-            console.log('WebSocket 连接成功');
-        });
-
-        // 监听后端广播的 'inspection-update' 事件
-        socket.on('inspection-update', (msg) => {
-            console.log('收到点检更新通知:', msg);
-            message.success('点检状态已更新，正在刷新列表...');
-            fetchData(); // 重新获取数据
-        });
-
-        // 监听断开连接事件
-        socket.on('disconnect', () => {
-            console.log('WebSocket 断开连接');
-        });
-
-        // 组件卸载时清理监听器
-        return () => {
-            socket.off('connect');
-            socket.off('inspection-update');
-            socket.off('disconnect');
-        };
-    }, []); // 空依赖数组确保只在组件挂载时执行一次
-
     return (
-        <Spin spinning={loading} tip="正在加载数据...">
+        <div className="equipment-inspection-container">
+            <h1 className="title-text">设备日常点检看板</h1>
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                <div style={{ marginBottom: 8 }}>
+                    <span style={{ marginBottom: 8 }}>设备类型</span>
+                    <Radio.Group onChange={handleTypeFilterChange} value={filterType}>
+                        <Radio value="全部">全部</Radio>
+                        <Radio value="日常巡查">日常巡查</Radio>
+                        <Radio value="温控巡查">温控巡查</Radio>
+                        <Radio value="特种设备">特种设备</Radio>
+                        <Radio value="安全用电">安全用电</Radio>
+                    </Radio.Group>
+                </div>
+                <div>
+                    <span style={{ marginRight: 8 }}>点检状态</span>
+                    <Radio.Group onChange={handleFilterChange} value={filterStatus}>
+                        <Radio value="全部">全部</Radio>
+                        <Radio value="已点检">已点检</Radio>
+                        <Radio value="未点检">未点检</Radio>
+                    </Radio.Group>
+                </div>
+            </div>
             <Table
                 columns={columns}
-                dataSource={data}
-                rowKey="equip_code" // 使用唯一的 equip_code 作为 key
-                bordered
-                pagination={{pageSize: 20}} // 调整分页大小
-                title={() => <h2 style={{textAlign: 'center', margin: 0}}>设备每日点检状态看板</h2>}
+                dataSource={filteredData}
+                rowKey="equip_code"
+                // bordered={false}
+                pagination={false}
+                className="custom-table"
             />
-        </Spin>
+        </div>
     );
 };
 
