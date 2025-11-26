@@ -24,12 +24,13 @@ export const loginApi = {
 
   // POST请求示例
   login: (data) => {
-    const baseUrl = process.env.REACT_APP_API_URL || "http://192.168.150.1:9020";
+    // const baseUrl = process.env.REACT_APP_API_URL || "http://192.168.150.1:9020";
     // console.log("REACT_APP_API_URL:", process.env.REACT_APP_API_URL); // 添加这行来调
     //
     // console.log("API URL:", `${baseUrl}/api/user/login`); // 添加这行来调试
     return request({
-      url: `${baseUrl}/api/user/login`,
+      // url: `${baseUrl}/api/user/login`,
+      url:`/api/user/login`,
       method: "post",
       data,
     });
@@ -66,6 +67,36 @@ export const homeAPi = {
     return request({
       url: "/api/home/utilization/all",
       method: "get",
+    });
+  },
+  // 新增：获取设备列表
+  getEquipmentList: () => {
+    return request({
+      url: "/api/home/equipment/list",
+      method: "get",
+    });
+  },
+  // 新增：添加设备
+  addEquipment: (data) => {
+    return request({
+      url: "/api/home/equipment/add",
+      method: "post",
+      data,
+    });
+  },
+  // 新增：更新设备
+  updateEquipment: (data) => {
+    return request({
+      url: "/api/home/equipment/update",
+      method: "put",
+      data,
+    });
+  },
+  // 新增：删除设备
+  deleteEquipment: (id) => {
+    return request({
+      url: `/api/home/equipment/delete?id=${id}`,
+      method: "delete",
     });
   },
   getEquipmentRepairCompletionRate: () => {

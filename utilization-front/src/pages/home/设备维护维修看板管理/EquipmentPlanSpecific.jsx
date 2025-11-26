@@ -7,7 +7,7 @@ const { Option } = Select;
 
 const EquipmentPlanSpecific = () => {
 
-    const socket = "http://192.168.0.103:9020";
+    const socket = process.env.REACT_APP_API_URL;
 
     const [weeklyData, setWeeklyData] = useState([]);
     const [dailyData, setDailyData] = useState([]);

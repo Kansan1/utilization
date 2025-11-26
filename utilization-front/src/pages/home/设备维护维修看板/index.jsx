@@ -66,7 +66,7 @@ const earlyColumns = [
 ];
 
 export default function EquipmentMaintenance({ isFullscreen, currentTime }) {
-    const baseURL = "http://192.168.0.103:9020";
+    const baseURL = process.env.REACT_APP_API_URL;
     const socket = io(baseURL);
 
     const [maintainDayData, setMaintainDayData] = useState([]);

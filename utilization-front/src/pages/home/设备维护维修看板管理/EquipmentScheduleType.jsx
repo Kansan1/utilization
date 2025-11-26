@@ -1,14 +1,8 @@
-// ComponentA.jsx
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Space, Popconfirm, message } from 'antd';
-import axios from 'axios';
-import {io} from "socket.io-client";
+import { homeAPi } from '../../../api'; // 导入封装好的API
 
-
-
-
-export default function EquipmentScheduleType() {
-    const socket = "http://192.168.0.103:9020";
+function EquipmentScheduleType() {
     const [devices, setDevices] = useState([]);
     const [editingDevice, setEditingDevice] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,8 +12,9 @@ export default function EquipmentScheduleType() {
     const fetchDevices = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${socket}/api/home/equipment/list`);
-            setDevices(res.data.data || []);
+            // 使用封装好的 homeAPi
+            const res = await homeAPi.getEquipmentList();
+            setDevices(res.data || []);
         } catch (err) {
             message.error('获取设备列表失败');
         } finally {
@@ -45,10 +40,12 @@ export default function EquipmentScheduleType() {
         try {
             const values = await form.validateFields();
             if (editingDevice) {
-                await axios.put(`${socket}/api/home/equipment/update`, { ...editingDevice, ...values });
+                // 使用封装好的 homeAPi
+                await homeAPi.updateEquipment({ ...editingDevice, ...values });
                 message.success('更新成功');
             } else {
-                await axios.post(`${socket}/api/home/equipment/add`, values);
+                // 使用封装好的 homeAPi
+                await homeAPi.addEquipment(values);
                 message.success('添加成功');
             }
             setIsModalOpen(false);
@@ -60,7 +57,8 @@ export default function EquipmentScheduleType() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${socket}/api/home/equipment/delete?id=${id}`);
+            // 使用封装好的 homeAPi
+            await homeAPi.deleteEquipment(id);
             message.success('删除成功');
             fetchDevices();
         } catch (err) {
@@ -129,3 +127,5 @@ export default function EquipmentScheduleType() {
         </div>
     );
 }
+
+export default EquipmentScheduleType;

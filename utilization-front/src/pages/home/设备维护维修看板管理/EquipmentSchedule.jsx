@@ -3,7 +3,7 @@ import { Table, message } from 'antd';
 import {io} from "socket.io-client";
 
 const EquipmentScheduleWithCategory = () => {
-    const socket = "http://192.168.0.103:9020";
+    const socket = process.env.REACT_APP_API_URL;
     const [dataSource, setDataSource] = useState([]);
 
     // 获取设备列表

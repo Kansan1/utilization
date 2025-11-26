@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import {io} from "socket.io-client";
 
 const DailyRepairTask = () => {
-    const socket = "http://192.168.0.103:9020";
+    const socket = process.env.REACT_APP_API_URL;
     // --- 日维修任务状态 ---
     const [data, setData] = useState([]);
     const [form] = Form.useForm();

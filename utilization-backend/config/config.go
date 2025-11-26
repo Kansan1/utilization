@@ -28,8 +28,10 @@ var AppConfig Config
 
 // LoadConfig 加载配置文件
 func LoadConfig() error {
-	// 读取配置文件
+	//读取配置文件不打包时使用
 	data, err := os.ReadFile("../config/config.yaml")
+	//打包时使用
+	//data, err := os.ReadFile("config/config.yaml")
 	if err != nil {
 		return fmt.Errorf("读取配置文件失败: %w", err)
 	}
