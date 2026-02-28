@@ -45,7 +45,7 @@ func GetAllUtilizationList(ctx *gin.Context) {
 	fmt.Println("currentYear", currentYear)
 	var utilizationAllVoList []vo.UtilizationAllVo
 	for i := 1; i <= 12; i++ {
-		currentTime := fmt.Sprintf("%d-%02d", currentYear, i)
+		currentTime := fmt.Sprintf("%d-%0 2d", currentYear, i)
 		fmt.Printf("currentTime: %v\n", currentTime)
 		year, month := CurrentTimeToYearMonth(currentTime)
 		// 从数据库获取数据
@@ -64,6 +64,40 @@ func GetAllUtilizationList(ctx *gin.Context) {
 	result.Success(ctx, utilizationAllVoList)
 }
 
+//	func GetAllUtilizationList(ctx *gin.Context) {
+//		yearStr := ctx.Query("year")
+//		var year int
+//		var err error
+//		if yearStr == "" {
+//			year = time.Now().Year()
+//		} else {
+//			year, err = strconv.Atoi(yearStr)
+//			if err != nil {
+//				result.Fail(ctx, http.StatusBadRequest, "无效的年份参数")
+//				return
+//			}
+//		}
+//		fmt.Println("currentYear", year)
+//		var utilizationAllVoList []vo.UtilizationAllVo
+//		for i := 1; i <= 12; i++ {
+//			currentTime := fmt.Sprintf("%d-%02d", year, i)
+//			fmt.Printf("currentTime: %v\n", currentTime)
+//			queryYear, month := CurrentTimeToYearMonth(currentTime)
+//			// 从数据库获取数据
+//			utilizationWorkingHourList, utilizationExceptionList :=
+//				dao.GetUtilizationListByMonth(queryYear, month)
+//			//处理数
+//			valueAll, valueActual, valueRate := HandleAllUtilizationList(utilizationWorkingHourList, utilizationExceptionList)
+//			utilizationAllVoList = append(utilizationAllVoList, vo.UtilizationAllVo{
+//				Date:        currentTime,
+//				Value:       valueRate,
+//				ValueAll:    valueAll,
+//				ValueActual: valueActual,
+//			})
+//		}
+//		fmt.Println("utilizationVoList", utilizationAllVoList)
+//		result.Success(ctx, utilizationAllVoList)
+//	}
 func HandleAllUtilizationList(utilizationWorkingHourList []models.UtilizationWorkingHour, utilizationExceptionList []models.UtilizationException) (float32, float32, float32) {
 	var utilizationList0 []models.Utilization
 	var utilizationList1 []models.Utilization
