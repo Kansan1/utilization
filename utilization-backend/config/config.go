@@ -18,6 +18,16 @@ type Config struct {
 		TrustServerCertificate bool   `yaml:"trustServerCertificate"`
 	} `yaml:"database"`
 
+	Database2 struct {
+		Host                   string `yaml:"host"`
+		Port                   int    `yaml:"port"`
+		Username               string `yaml:"username"`
+		Password               string `yaml:"password"`
+		DBName                 string `yaml:"dbname"`
+		Encrypt                string `yaml:"encrypt"`
+		TrustServerCertificate bool   `yaml:"trustServerCertificate"`
+	} `yaml:"database2"`
+
 	JWT struct {
 		Secret      string `yaml:"secret"`
 		ExpireHours int    `yaml:"expireHours"`
@@ -29,9 +39,9 @@ var AppConfig Config
 // LoadConfig 加载配置文件
 func LoadConfig() error {
 	//读取配置文件不打包时使用
-	//data, err := os.ReadFile("../config/config.yaml")
+	data, err := os.ReadFile("../config/config.yaml")
 	//打包时使用
-	data, err := os.ReadFile("config/config.yaml")
+	//data, err := os.ReadFile("config/config.yaml")
 	if err != nil {
 		return fmt.Errorf("读取配置文件失败: %w", err)
 	}
@@ -48,6 +58,13 @@ func LoadConfig() error {
 // GetDSN 获取数据库连接字符串
 func GetDSN() string {
 	db := AppConfig.Database
+	return fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;encrypt=%v;TrustServerCertificate=%v",
+		db.Host, db.Username, db.Password, db.Port, db.DBName, db.Encrypt, db.TrustServerCertificate)
+}
+
+// GetDSN2 获取第二个数据库连接字符串
+func GetDSN2() string {
+	db := AppConfig.Database2
 	return fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;encrypt=%v;TrustServerCertificate=%v",
 		db.Host, db.Username, db.Password, db.Port, db.DBName, db.Encrypt, db.TrustServerCertificate)
 }

@@ -8,6 +8,14 @@ database:
   encrypt: "disable"
   trustServerCertificate: true
 
+database2:
+  host: "192.168.0.100"
+  port: 1433
+  username: "sa"
+  password: "1"
+  dbname: "EMS"
+  encrypt: "disable"
+  trustServerCertificate: true
 # JWT配置
 jwt:
   secret: "shuchen" # 请在生产环境中使用更强的密钥

@@ -81,20 +81,24 @@ func GetMergedMonthlyFaultFrequencies(year, month int) ([]models.MonthlyFaultFre
 		if err := rows.Scan(&m.ID, &m.Line, &m.EquipmentName, &m.Content, &m.FaultCount, &m.State, &m.Defender, &m.Year, &m.Month); err != nil {
 			return nil, err
 		}
-		// 用 线别+设备名称 作为key（去重标识）
-		key := m.Line + "|" + m.EquipmentName
+		// 使用 线别+设备名称+故障内容 作为key，确保唯一性
+		key := m.Line + "|" + m.EquipmentName + "|" + m.Content
 		resultMap[key] = m
 	}
 
-	// 查询 DailyRepairTask 中本月维修次数 ≥ 5 的记录
+	// 查询 Repair_Report 中本月维修次数 ≥ 5 的记录
 	freqQuery := `
-        SELECT line, device_name, fault, COUNT(*) AS fault_count
-        FROM DailyRepairTask
-        WHERE YEAR(report_time) = @p1 AND MONTH(report_time) = @p2
-        GROUP BY line, device_name, fault
+        SELECT 
+            COALESCE(报修班组, '') as 报修班组, 
+            COALESCE(型号, '') as 型号, 
+            COALESCE(故障现象, '') as 故障现象, 
+            COUNT(*) AS fault_count
+        FROM Repair_Report
+        WHERE YEAR(报修时间) = @p1 AND MONTH(报修时间) = @p2
+        GROUP BY 报修班组, 型号, 故障现象
         HAVING COUNT(*) >= 5
     `
-	rows2, err := config.DB.Query(freqQuery, year, month)
+	rows2, err := config.DB2.Query(freqQuery, year, month)
 	if err != nil {
 		return nil, err
 	}
@@ -106,15 +110,19 @@ func GetMergedMonthlyFaultFrequencies(year, month int) ([]models.MonthlyFaultFre
 		if err := rows2.Scan(&m.Line, &m.EquipmentName, &m.Content, &faultCount); err != nil {
 			return nil, err
 		}
-		m.FaultCount = faultCount
-		m.State = "未处理"
-		m.Defender = ""
-		m.Year = year
-		m.Month = month
 
-		key := m.Line + "|" + m.EquipmentName
-		// 如果已存在，不重复加入；不存在才加入
-		if _, exists := resultMap[key]; !exists {
+		key := m.Line + "|" + m.EquipmentName + "|" + m.Content
+
+		// 如果记录已存在于MonthlyFaultFrequency表中，则更新维修次数
+		if existing, exists := resultMap[key]; exists {
+			existing.FaultCount = faultCount
+			resultMap[key] = existing
+		} else { // 如果是新检测到的高频故障，则作为新记录添加
+			m.FaultCount = faultCount
+			m.State = "未处理"
+			m.Defender = ""
+			m.Year = year
+			m.Month = month
 			resultMap[key] = m
 		}
 	}
