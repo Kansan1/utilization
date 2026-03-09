@@ -45,7 +45,7 @@ func GetAllUtilizationList(ctx *gin.Context) {
 	fmt.Println("currentYear", currentYear)
 	var utilizationAllVoList []vo.UtilizationAllVo
 	for i := 1; i <= 12; i++ {
-		currentTime := fmt.Sprintf("%d-%0 2d", currentYear, i)
+		currentTime := fmt.Sprintf("%d-%02d", currentYear, i)
 		fmt.Printf("currentTime: %v\n", currentTime)
 		year, month := CurrentTimeToYearMonth(currentTime)
 		// 从数据库获取数据
